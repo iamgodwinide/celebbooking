@@ -11,7 +11,11 @@ type PageParams = {
   service: string;
 };
 
-export default async function ApplicationPage({ params }: { params: PageParams }) {
+interface PageProps {
+  params: PageParams;
+}
+
+export default function ApplicationPage({ params }: PageProps) {
   const router = useRouter();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const cardTypes = [
