@@ -37,10 +37,10 @@ const services: Service[] = [
 ];
 
 
-const ServiceComponent = ({ params }: { params: { id: string } }) => {
+const ServiceComponent = ({ params }: { params :{id: string }}) => {
   // Mock celebrity data (in a real app, this would come from an API)
   const celebrity = {
-    id: params.id,
+    id: 'john-legend',
     name: 'John Doe',
     category: 'Actor & Singer',
     rating: 4.9,
