@@ -8,6 +8,6 @@ type Props = {
   searchParams?: { [key: string]: string | string[] | undefined };
 };
 
-export default function ApplicationPage({ params, searchParams }: Props) {
+export default function ApplicationPage({ params, searchParams }: any) {
   return <ApplicationPageComponent params={params} />;
 }
