@@ -51,7 +51,7 @@ const Features = () => {
           {services.map((service) => {
             const Icon = service.icon;
             return (
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-8 transform transition-all duration-300 hover:-translate-y-1 group">
+              <div key={service.id} className="bg-white/5 backdrop-blur-sm rounded-xl p-8 transform transition-all duration-300 hover:-translate-y-1 group">
                 <div className="flex items-center gap-4 mb-4">
                   <div className={`p-3 rounded-lg bg-gradient-to-r ${service.gradient} text-white`}>
                     <Icon className="w-6 h-6" />
