@@ -6,7 +6,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { FaStar, FaArrowLeft, FaCalendarAlt, FaEnvelope, FaPhone, FaUser, FaBitcoin, FaUniversity } from 'react-icons/fa';
 
-export default function ApplicationPage({ params }: { params: { id: string; service: string } }) {
+interface PageProps {
+  params: {
+    id: string;
+    service: string;
+  };
+}
+
+export default function ApplicationPage({ params }: PageProps) {
   const router = useRouter();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const cardTypes = [
