@@ -127,7 +127,7 @@ const ServiceComponent = ({ params }: { params :{id: string }}) => {
                   return (
                     <Link
                       key={service.id}
-                      href={`/booking/${params.id}/apply/${service.id}`}
+                      href={`/booking/john-legend/apply/${service.id}`}
                       className="group p-8 bg-white/5 backdrop-blur-sm rounded-xl hover:bg-gradient-to-r hover:from-purple-500/20 hover:to-pink-500/20 transition-all duration-300 transform hover:-translate-y-1"
                     >
                       <div className={`p-4 rounded-xl bg-gradient-to-r ${service.gradient} mb-6 w-16 h-16 flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
