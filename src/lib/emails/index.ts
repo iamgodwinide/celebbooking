@@ -1,10 +1,9 @@
 import { resend, FROM_EMAIL } from '@/config/resend';
-import { Booking } from '@/models/Booking';
 import { BookingConfirmationEmail } from './booking-confirmation';
 import { BookingStatusUpdateEmail } from './booking-status-update';
 
 interface EmailOptions {
-  booking: Booking;
+  booking: any;
   celebrity: {
     name: string;
     profession: string;
