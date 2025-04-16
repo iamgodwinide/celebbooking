@@ -29,6 +29,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>{children}</AuthProvider>
+        <script src="//code.jivosite.com/widget/D6zH20kCRm" async></script>
       </body>
     </html>
   );
