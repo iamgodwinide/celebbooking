@@ -1,8 +1,17 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FaStar, FaHandshake, FaIdCard, FaHandHoldingHeart, FaInstagram, FaTwitter, FaTiktok } from 'react-icons/fa';
+import { FaHandshake, FaIdCard, FaHandHoldingHeart } from 'react-icons/fa';
+
+type Celebrity = {
+  _id: string;
+  name: string;
+  profession: string;
+  imageUrl: string;
+  bio: string;
+};
 
 type Service = {
   id: string;
@@ -37,24 +46,79 @@ const services: Service[] = [
 ];
 
 
-const ServiceComponent = ({ params }: { params :{id: string }}) => {
-  // Mock celebrity data (in a real app, this would come from an API)
-  const celebrity = {
-    id: 'john-legend',
-    name: 'John Doe',
-    category: 'Actor & Singer',
-    rating: 4.9,
-    reviews: 128,
-    image: '/celebrities/john-doe.jpg',
-    bio: 'Award-winning actor and platinum-selling recording artist with over 15 years of experience in entertainment.',
-    socialMedia: {
-      instagram: '@johndoe',
-      twitter: '@johndoe',
-      tiktok: '@johndoe'
-    }
+interface ServiceComponentProps {
+  params: {
+    id: string;
   };
+}
+
+const ServiceComponent = ({ params }: ServiceComponentProps) => {
+  console.log('Received params.id:', params.id);
+  const [celebrity, setCelebrity] = useState<Celebrity | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchCelebrity = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/celebrities/id/${params.id}`);
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'Failed to fetch celebrity');
+        }
+
+        const data = await res.json();
+        setCelebrity(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCelebrity();
+  }, [params.id]);
 
 
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 py-12">
+        <div className="container mx-auto px-4">
+          <div className="animate-pulse">
+            <div className="h-[40vh] bg-gray-800 rounded-lg mb-12" />
+            <div className="bg-white/5 p-8 rounded-xl">
+              <div className="space-y-4">
+                <div className="h-8 bg-gray-800 rounded w-1/3" />
+                <div className="h-4 bg-gray-800 rounded w-1/4" />
+                <div className="h-32 bg-gray-800 rounded" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !celebrity) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 py-12">
+        <div className="container mx-auto px-4 text-center">
+          <div className="bg-red-500/10 p-8 rounded-lg">
+            <h2 className="text-2xl font-bold text-red-500 mb-4">Error</h2>
+            <p className="text-gray-400 mb-6">{error || 'Celebrity not found'}</p>
+            <Link
+              href="/celebrities"
+              className="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              Back to Celebrities
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
@@ -62,7 +126,7 @@ const ServiceComponent = ({ params }: { params :{id: string }}) => {
       <div className="relative h-[40vh] overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-900 z-10" />
         <Image
-          src={celebrity.image}
+          src={celebrity.imageUrl || '/placeholder-celebrity.jpg'}
           alt={celebrity.name}
           fill
           className="object-cover"
@@ -77,44 +141,9 @@ const ServiceComponent = ({ params }: { params :{id: string }}) => {
               <div className="flex items-start justify-between mb-6">
                 <div>
                   <h1 className="text-4xl font-bold text-white mb-2">{celebrity.name}</h1>
-                  <p className="text-purple-400 mb-4">{celebrity.category}</p>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center">
-                      <FaStar className="text-yellow-500 w-5 h-5" />
-                      <span className="text-white ml-1">{celebrity.rating}</span>
-                    </div>
-                    <span className="text-gray-400">({celebrity.reviews} reviews)</span>
-                  </div>
+                  <p className="text-purple-400 mb-4">{celebrity.profession}</p>
                 </div>
-                <div className="flex gap-4">
-                  {Object.entries(celebrity.socialMedia).map(([platform, handle]) => {
-                    let SocialIcon;
-                    switch(platform) {
-                      case 'instagram':
-                        SocialIcon = FaInstagram;
-                        break;
-                      case 'twitter':
-                        SocialIcon = FaTwitter;
-                        break;
-                      case 'tiktok':
-                        SocialIcon = FaTiktok;
-                        break;
-                      default:
-                        return null;
-                    }
-                    return (
-                      <a
-                        key={platform}
-                        href={`https://${platform}.com/${handle}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2 rounded-lg bg-white/5 text-gray-400 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white transition-all duration-300"
-                      >
-                        <SocialIcon className="w-5 h-5" />
-                      </a>
-                    );
-                  })}
-                </div>
+
               </div>
 
               <p className="text-gray-300 mb-12">{celebrity.bio}</p>
@@ -127,7 +156,7 @@ const ServiceComponent = ({ params }: { params :{id: string }}) => {
                   return (
                     <Link
                       key={service.id}
-                      href={`/booking/john-legend/apply/${service.id}`}
+                      href={`/booking/${celebrity._id}/apply/${service.id}`}
                       className="group p-8 bg-white/5 backdrop-blur-sm rounded-xl hover:bg-gradient-to-r hover:from-purple-500/20 hover:to-pink-500/20 transition-all duration-300 transform hover:-translate-y-1"
                     >
                       <div className={`p-4 rounded-xl bg-gradient-to-r ${service.gradient} mb-6 w-16 h-16 flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>

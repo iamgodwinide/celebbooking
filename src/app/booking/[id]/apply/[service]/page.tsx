@@ -8,6 +8,7 @@ type Props = {
   searchParams?: { [key: string]: string | string[] | undefined };
 };
 
-export default function ApplicationPage({ params, searchParams }: any) {
-  return <ApplicationPageComponent params={params} />;
+export default async function ApplicationPage({ params, searchParams }: any) {
+  const _params = await params;
+  return <ApplicationPageComponent params={_params} />;
 }

@@ -14,8 +14,8 @@ const contactInfo = [
   {
     icon: FaEnvelope,
     title: 'Email Us',
-    details: 'contact@celebbooking.com',
-    link: 'mailto:contact@celebbooking.com'
+    details: 'info@bookingstars.pro',
+    link: 'mailto:info@bookingstars.pro'
   },
   {
     icon: FaPhone,

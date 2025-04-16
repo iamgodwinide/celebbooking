@@ -1,94 +1,64 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FaStar, FaSearch, FaFilter } from 'react-icons/fa';
+import { FaSearch, FaFilter } from 'react-icons/fa';
 
 type Celebrity = {
-  id: string;
+  _id: string;
   name: string;
-  category: string;
+  profession: string;
   imageUrl: string;
-  rating: number;
-  reviews: number;
-  availability: 'Available' | 'Limited' | 'Booked';
-  price: number;
-  tags: string[];
+  bio: string;
+  slug: string;
 };
 
-const celebrities: Celebrity[] = [
-  {
-    id: 'john-legend',
-    name: 'John Legend',
-    category: 'Music',
-    imageUrl: '/celebrities/john-legend.jpg',
-    rating: 4.9,
-    reviews: 128,
-    availability: 'Available',
-    price: 5000,
-    tags: ['Singer', 'Piano', 'R&B', 'Soul']
-  },
-  {
-    id: 'emma-watson',
-    name: 'Emma Watson',
-    category: 'Acting',
-    imageUrl: '/celebrities/emma-watson.jpg',
-    rating: 4.8,
-    reviews: 156,
-    availability: 'Limited',
-    price: 8000,
-    tags: ['Actor', 'Activist', 'Fashion']
-  },
-  {
-    id: 'gordon-ramsay',
-    name: 'Gordon Ramsay',
-    category: 'Culinary',
-    imageUrl: '/celebrities/gordon-ramsay.jpg',
-    rating: 4.7,
-    reviews: 203,
-    availability: 'Available',
-    price: 10000,
-    tags: ['Chef', 'TV Host', 'Restaurateur']
-  },
-  {
-    id: 'serena-williams',
-    name: 'Serena Williams',
-    category: 'Sports',
-    imageUrl: '/celebrities/serena-williams.jpg',
-    rating: 4.9,
-    reviews: 189,
-    availability: 'Booked',
-    price: 15000,
-    tags: ['Tennis', 'Athlete', 'Entrepreneur']
-  }
-];
 
-const categories = ['All', 'Music', 'Acting', 'Sports', 'Culinary'];
-const availabilityOptions = ['All', 'Available', 'Limited', 'Booked'];
-const priceRanges = [
-  { label: 'All', min: 0, max: Infinity },
-  { label: '$1,000 - $5,000', min: 1000, max: 5000 },
-  { label: '$5,000 - $10,000', min: 5000, max: 10000 },
-  { label: '$10,000+', min: 10000, max: Infinity }
-];
+
+
 
 export default function CelebritiesPage() {
+  const [celebrities, setCelebrities] = useState<Celebrity[]>([]);
+  const [professions, setProfessions] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [selectedAvailability, setSelectedAvailability] = useState('All');
-  const [selectedPriceRange, setSelectedPriceRange] = useState(priceRanges[0]);
+  const [selectedProfession, setSelectedProfession] = useState('All');
   const [showFilters, setShowFilters] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const filteredCelebrities = celebrities.filter(celebrity => {
-    const matchesSearch = celebrity.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      celebrity.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesCategory = selectedCategory === 'All' || celebrity.category === selectedCategory;
-    const matchesAvailability = selectedAvailability === 'All' || celebrity.availability === selectedAvailability;
-    const matchesPriceRange = celebrity.price >= selectedPriceRange.min && celebrity.price <= selectedPriceRange.max;
+  useEffect(() => {
+    const fetchCelebrities = async () => {
+      try {
+        setLoading(true);
+        const params = new URLSearchParams({
+          page: page.toString(),
+          limit: '12',
+          ...(searchQuery && { search: searchQuery }),
+          ...(selectedProfession !== 'All' && { profession: selectedProfession })
+        });
 
-    return matchesSearch && matchesCategory && matchesAvailability && matchesPriceRange;
-  });
+        const res = await fetch(`/api/celebrities?${params}`);
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'Failed to fetch celebrities');
+        }
+
+        const data = await res.json();
+        setCelebrities(data.celebrities);
+        setProfessions(['All', ...data.professions]);
+        setTotalPages(data.pagination.totalPages);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCelebrities();
+  }, [page, searchQuery, selectedProfession]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
@@ -129,49 +99,22 @@ export default function CelebritiesPage() {
           {/* Filters */}
           {showFilters && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-white/5 rounded-lg">
-              {/* Category Filter */}
-              <div>
-                <label className="block text-white mb-2">Category</label>
+              {/* Profession Filter */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-400 mb-2">
+                  Profession
+                </label>
                 <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  value={selectedProfession}
+                  onChange={(e) => {
+                    setSelectedProfession(e.target.value);
+                    setPage(1);
+                  }}
                   className="w-full px-4 py-2 bg-white/5 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
-                  {categories.map((category) => (
-                    <option key={category} value={category} className="bg-gray-900">
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Availability Filter */}
-              <div>
-                <label className="block text-white mb-2">Availability</label>
-                <select
-                  value={selectedAvailability}
-                  onChange={(e) => setSelectedAvailability(e.target.value)}
-                  className="w-full px-4 py-2 bg-white/5 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                >
-                  {availabilityOptions.map((option) => (
-                    <option key={option} value={option} className="bg-gray-900">
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Price Range Filter */}
-              <div>
-                <label className="block text-white mb-2">Price Range</label>
-                <select
-                  value={selectedPriceRange.label}
-                  onChange={(e) => setSelectedPriceRange(priceRanges.find(range => range.label === e.target.value)!)}
-                  className="w-full px-4 py-2 bg-white/5 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                >
-                  {priceRanges.map((range) => (
-                    <option key={range.label} value={range.label} className="bg-gray-900">
-                      {range.label}
+                  {professions.map((profession) => (
+                    <option key={profession} value={profession} className="bg-gray-900">
+                      {profession}
                     </option>
                   ))}
                 </select>
@@ -181,9 +124,35 @@ export default function CelebritiesPage() {
         </div>
 
         {/* Celebrity Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {filteredCelebrities.map((celebrity) => (
-            <div key={celebrity.id} className="group relative">
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {[...Array(12)].map((_, index) => (
+              <div key={index} className="animate-pulse">
+                <div className="bg-white/5 rounded-xl overflow-hidden">
+                  <div className="h-80 bg-gray-800" />
+                  <div className="p-6 space-y-4">
+                    <div className="h-6 bg-gray-800 rounded w-3/4" />
+                    <div className="h-4 bg-gray-800 rounded w-1/2" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-red-500 text-xl">{error}</p>
+            <button
+              onClick={() => setPage(1)}
+              className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {celebrities.map((celebrity) => (
+            <div key={celebrity._id} className="group relative">
               {/* Celebrity Card */}
               <div className="bg-white/5 rounded-xl overflow-hidden">
                 {/* Image */}
@@ -196,16 +165,7 @@ export default function CelebritiesPage() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                   
-                  {/* Availability Badge */}
-                  <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-medium ${
-                    celebrity.availability === 'Available'
-                      ? 'bg-green-500/20 text-green-400'
-                      : celebrity.availability === 'Limited'
-                      ? 'bg-yellow-500/20 text-yellow-400'
-                      : 'bg-red-500/20 text-red-400'
-                  }`}>
-                    {celebrity.availability}
-                  </div>
+
                 </div>
 
                 {/* Content */}
@@ -213,33 +173,19 @@ export default function CelebritiesPage() {
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h3 className="text-xl font-bold text-white mb-1">{celebrity.name}</h3>
-                      <p className="text-gray-400">{celebrity.category}</p>
+                      <p className="text-gray-400">{celebrity.profession}</p>
                     </div>
                     <div className="text-right">
-                      <div className="flex items-center text-gray-400">
-                        <FaStar className="text-yellow-400 mr-1" />
-                        <span>{celebrity.rating}</span>
-                        <span className="mx-1">·</span>
-                        <span>{celebrity.reviews} reviews</span>
-                      </div>
+  
                     </div>
                   </div>
 
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {celebrity.tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="px-2 py-1 bg-white/5 rounded-full text-sm text-gray-400"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                  {/* Bio */}
+                  <p className="text-gray-400 mb-4 line-clamp-2">{celebrity.bio}</p>
 
                   {/* Book Now Button */}
                   <Link
-                    href={`/booking/${celebrity.id}`}
+                    href={`/booking/${celebrity._id}`} // MongoDB IDs don't need encoding in Next.js dynamic routes
                     className="block w-full px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg text-center font-semibold text-white hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:-translate-y-1"
                   >
                     Book Now
@@ -250,8 +196,33 @@ export default function CelebritiesPage() {
           ))}
         </div>
 
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-8 flex justify-center gap-2">
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="px-4 py-2 bg-white/5 rounded-lg text-white disabled:opacity-50"
+                >
+                  Previous
+                </button>
+                <span className="px-4 py-2 text-white">
+                  Page {page} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="px-4 py-2 bg-white/5 rounded-lg text-white disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
+        )}
+
         {/* No Results */}
-        {filteredCelebrities.length === 0 && (
+        {!loading && !error && celebrities.length === 0 && (
           <div className="text-center py-12">
             <p className="text-gray-400 text-xl">No celebrities found matching your criteria</p>
           </div>

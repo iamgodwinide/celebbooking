@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -12,7 +12,9 @@ const ApplicationPageComponent = ({
     params: { id: string; service: string };
   }) => {
     const router = useRouter();
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [error, setError] = useState('');
     const cardTypes = [
       {
         id: 'bronze',
@@ -90,16 +92,27 @@ const ApplicationPageComponent = ({
       }));
     };
   
-    // Mock celebrity data (in a real app, this would come from an API)
-    const celebrity = {
-      id: params.id,
-      name: "John Doe",
-      category: "Actor & Singer",
-      rating: 4.9,
-      reviews: 128,
-      image: '/celebrities/john-doe.jpg',
-      bio: 'Award-winning actor and platinum-selling recording artist with over 15 years of experience in entertainment.'
-    };
+    const [celebrity, setCelebrity] = useState<any>({});
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+      const fetchCelebrity = async () => {
+        try {
+          const res = await fetch(`/api/celebrities/id/${params.id}`);
+          if (!res.ok) {
+            throw new Error('Failed to fetch celebrity');
+          }
+          const data = await res.json();
+          setCelebrity(data);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Failed to load celebrity');
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchCelebrity();
+    }, [params.id]);
   
     const serviceInfo = {
       'meet-greet': {
@@ -124,14 +137,67 @@ const ApplicationPageComponent = ({
       return null;
     }
   
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      setIsSubmitting(true);
+
+      try {
+        // Create booking
+        const bookingPayload = {
+          celebrityId: params.id,
+          service: params.service === 'meet-greet' ? 'meet-and-greet' : 
+                  params.service === 'vip-card' ? 'vip-fan-cards' : 'donation',
+          customerName: formData.fullName,
+          customerEmail: formData.email,
+          customerPhone: formData.phone,
+          date: formData.date || new Date(),
+          amount: params.service === 'donate' ? 
+                 parseFloat(formData.donationAmount === 'custom' ? formData.customAmount : formData.donationAmount) :
+                 params.service === 'vip-card' ? 
+                 cardTypes.find(card => card.id === formData.cardType)?.price || 0 :
+                 params.service === 'meet-greet' ? 
+                 formData.budget || 0 : 0,
+          notes: formData.message,
+          paymentMethod: formData.paymentMethod === 'crypto' ? 'credit_card' : 'bank',
+          metadata: {
+            serviceType: params.service,
+            ...(params.service === 'vip-card' ? { cardType: formData.cardType } : {}),
+            ...(params.service === 'donate' ? { 
+              donationAmount: formData.donationAmount === 'custom' ? 
+                parseFloat(formData.customAmount) : 
+                parseFloat(formData.donationAmount)
+            } : {})
+          }
+        };
+
+        console.log('Sending booking:', bookingPayload);
+
+        const bookingRes = await fetch('/api/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bookingPayload)
+        });
+
+        if (!bookingRes.ok) {
+          throw new Error('Failed to create booking');
+        }
+
+        setIsSubmitted(true);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to submit application');
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
         {/* Hero Section */}
         <div className="relative h-[30vh] overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-900 z-10" />
           <Image
-            src={celebrity.image}
-            alt={celebrity.name}
+            src={celebrity?.imageUrl}
+            alt={celebrity?.name}
             fill
             className="object-cover"
             priority
@@ -156,13 +222,7 @@ const ApplicationPageComponent = ({
               </div>
   
               {!isSubmitted ? (
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    setIsSubmitted(true);
-                  }}
-                  className="space-y-6"
-                >
+                <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Full Name */}
                   <div>
                     <label className="block text-white mb-2">Full Name</label>
@@ -212,7 +272,7 @@ const ApplicationPageComponent = ({
                   </div>
   
                   {params.service === 'donate' && (
-                    <div className="space-y-4">
+                    <div className="space-y-8">
                       <label className="block text-white mb-4">Select Donation Amount</label>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
                         {donationAmounts.map((amount) => (
@@ -371,11 +431,17 @@ const ApplicationPageComponent = ({
                     />
                   </div>
   
+                  {error && (
+                    <div className="p-4 bg-red-500/10 border border-red-500 rounded-lg text-red-500 mb-6">
+                      {error}
+                    </div>
+                  )}
                   <button
                     type="submit"
-                    className="w-full px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg font-semibold text-lg text-white hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:-translate-y-1"
+                    disabled={isSubmitting}
+                    className={`w-full px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg font-semibold text-lg text-white transition-all duration-300 transform ${!isSubmitting && 'hover:from-purple-600 hover:to-pink-600 hover:-translate-y-1'} ${isSubmitting && 'opacity-50 cursor-not-allowed'}`}
                   >
-                    Submit Application
+                    {isSubmitting ? 'Submitting...' : 'Submit Booking'}
                   </button>
                 </form>
               ) : (
@@ -403,5 +469,6 @@ const ApplicationPageComponent = ({
       </div>
     );
 }
+
 
 export default ApplicationPageComponent

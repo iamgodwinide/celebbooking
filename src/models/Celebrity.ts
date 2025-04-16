@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 
-const CelebritySchema: Schema = new Schema({
+export const CelebritySchema: Schema = new Schema({
   name: {
     type: String,
     required: [true, 'Celebrity name is required'],
@@ -12,7 +12,7 @@ const CelebritySchema: Schema = new Schema({
     unique: true,
     lowercase: true
   },
-  professions: {
+  profession: {
     type: String,
     required: true
   },
