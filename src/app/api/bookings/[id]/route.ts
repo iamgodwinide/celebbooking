@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: any
 ) {
     try {
         await connectDb();
@@ -31,7 +31,7 @@ export async function GET(
 
 export async function PATCH(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: any
 ) {
     try {
         const body = await req.json();
@@ -80,7 +80,7 @@ export async function PATCH(
 
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: any
 ) {
     try {
         await connectDb();

@@ -9,8 +9,8 @@ import { CelebritySchema } from "@/models/Celebrity";
 import { BookingSchema } from "@/models/Booking";
 
 // Ensure models are registered
-let Celebrity;
-let Booking;
+let Celebrity: any;
+let Booking: any;
 
 try {
     Celebrity = mongoose.model('Celebrity');
@@ -78,7 +78,7 @@ export async function GET(req: NextRequest) {
             .limit(limit);
 
         // Manually populate celebrity data
-        const populatedBookings = await Promise.all(bookings.map(async (booking) => {
+        const populatedBookings = await Promise.all(bookings.map(async (booking:any) => {
             const bookingObj = booking.toObject();
             if (bookingObj.celebrityId) {
                 const celebrity = await Celebrity.findById(bookingObj.celebrityId)

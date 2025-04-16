@@ -13,7 +13,7 @@ function generateSlug(name: string): string {
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: any  
 ) {
     try {
         const session = await getServerSession();
@@ -41,7 +41,7 @@ export async function GET(
 
 export async function PUT(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: any
 ) {
     try {
         const session = await getServerSession();
@@ -93,7 +93,7 @@ export async function PUT(
 
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: any
 ) {
     try {
         const session = await getServerSession();

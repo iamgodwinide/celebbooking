@@ -2,7 +2,7 @@ import { connectDb } from "@/config";
 import Celebrity from "@/models/Celebrity";
 import { NextRequest, NextResponse } from "next/server"
 
-export const GET = async (req:NextRequest, { params }: { params: { id: string } }) => {
+export const GET = async (req:NextRequest, { params }: any) => {
        try{
         await connectDb();
         const id = await params.id;
@@ -19,7 +19,7 @@ export const GET = async (req:NextRequest, { params }: { params: { id: string } 
        }
 }
 
-export const POST = async (req:NextRequest, { params }: { params: { id: string } }) => {
+export const POST = async (req:NextRequest, { params }: any) => {
     try{
         await connectDb();
         // get request body and validate fields
@@ -54,7 +54,7 @@ export const POST = async (req:NextRequest, { params }: { params: { id: string }
 }
 
 
-export const DELETE = async (req:NextRequest, { params }: { params: { id: string } }) => {
+export const DELETE = async (req:NextRequest, { params }: any) => {
     try{
         await connectDb();
         const id = await params.id;

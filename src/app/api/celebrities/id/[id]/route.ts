@@ -3,7 +3,7 @@ import Celebrity from "@/models/Celebrity";
 import { NextRequest, NextResponse } from "next/server";
 import { Types } from "mongoose";
 
-export async function GET(req: NextRequest, context: { params: { id: string } }) {
+export async function GET(req: NextRequest, context: any) {
     const { params } = context;
     try {
         await connectDb();

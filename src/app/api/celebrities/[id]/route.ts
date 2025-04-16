@@ -5,7 +5,7 @@ import { Types } from "mongoose";
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: any
 ) {
     try {
         await connectDb();
