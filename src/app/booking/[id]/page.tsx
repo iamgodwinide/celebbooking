@@ -1,11 +1,6 @@
 import ServiceComponent from "./ServiceComponent";
 
-interface PageProps {
-  params: { id: string };
-  searchParams: { [key: string]: string | string[] | undefined };
-}
-
-export default async function BookingPage({ params, searchParams }: PageProps) {
+export default async function BookingPage({ params, searchParams }: any) {
   const _params = await params;
   return <ServiceComponent params={_params}/>;
 }
