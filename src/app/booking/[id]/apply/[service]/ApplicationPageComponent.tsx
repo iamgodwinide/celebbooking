@@ -355,7 +355,7 @@ const ApplicationPageComponent = ({
                             <div className="flex justify-between items-start mb-2">
                               <h4 className="text-lg font-semibold text-white">{card.name}</h4>
                               <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 text-transparent bg-clip-text">
-                                ${card.price}
+                                ${celebrity[card.id]}
                               </span>
                             </div>
                             <ul className="text-sm text-gray-400 list-disc pl-5 space-y-1">

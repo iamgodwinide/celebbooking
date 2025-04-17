@@ -20,6 +20,11 @@ interface Celebrity {
     };
     featured: boolean;
     slug: string;
+    bronze: number;
+    silver: number;
+    gold: number;
+    platinum: number;
+    event: number;
 }
 
 const CelebrityComponent = ({params}:any) => {
@@ -47,7 +52,7 @@ const CelebrityComponent = ({params}:any) => {
         fetchCelebrity();
     }, [params.id]);
 
-    const handleSubmit = async (formData: Omit<Celebrity, '_id' | 'slug'>) => {
+    const handleSubmit = async (formData: any) => {
         try {
             const res = await fetch(`/api/admin/celebrities/${params.id}`, {
                 method: 'PUT',

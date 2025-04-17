@@ -22,7 +22,8 @@ export async function GET(
         }
 
         await connectDb();
-        const celebrity = await Celebrity.findById(params.id);
+        const _params = await params;
+        const celebrity = await Celebrity.findById(_params.id);
         
         if (!celebrity) {
             return NextResponse.json({ error: "Celebrity not found" }, { status: 404 });
@@ -51,6 +52,7 @@ export async function PUT(
 
         await connectDb();
         const data = await req.json();
+        const _params = await params;
         
         // If name is changed, generate new slug
         if (data.name) {
@@ -60,7 +62,7 @@ export async function PUT(
             
             // Find existing celebrity with same slug, excluding current one
             while (await Celebrity.findOne({ 
-                _id: { $ne: params.id }, 
+                _id: { $ne: _params.id }, 
                 slug 
             })) {
                 slug = `${baseSlug}-${counter}`;
@@ -71,7 +73,7 @@ export async function PUT(
         }
 
         const celebrity = await Celebrity.findByIdAndUpdate(
-            params.id,
+            _params.id,
             { $set: data },
             { new: true, runValidators: true }
         );
@@ -102,7 +104,8 @@ export async function DELETE(
         }
 
         await connectDb();
-        const celebrity = await Celebrity.findByIdAndDelete(params.id);
+        const _params = await params;
+        const celebrity = await Celebrity.findByIdAndDelete(_params.id);
         
         if (!celebrity) {
             return NextResponse.json({ error: "Celebrity not found" }, { status: 404 });

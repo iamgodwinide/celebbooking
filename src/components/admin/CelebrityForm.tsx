@@ -23,6 +23,11 @@ interface CelebrityFormData {
         youtube?: string;
     };
     featured: boolean;
+    bronze: number;
+    silver: number;
+    gold: number;
+    platinum: number;
+    event: number;
 }
 
 interface Props {
@@ -43,7 +48,12 @@ const defaultFormData: CelebrityFormData = {
         tiktok: '',
         youtube: ''
     },
-    featured: false
+    featured: false,
+    bronze: 99,
+    silver: 199,
+    gold: 499,
+    platinum: 999,
+    event: 299
 };
 
 export default function CelebrityForm({ initialData, onSubmit, onCancel }: Props) {
@@ -227,6 +237,70 @@ export default function CelebrityForm({ initialData, onSubmit, onCancel }: Props
                             className="w-full pl-10 pr-4 py-2 bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
                         />
                     </div>
+                </div>
+            </div>
+
+            {/* Fan Card Prices */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1">
+                        Bronze Card Price ($)
+                    </label>
+                    <input
+                        type="number"
+                        value={formData.bronze}
+                        onChange={(e) => setFormData(prev => ({ ...prev, bronze: parseInt(e.target.value) || 0 }))}
+                        min="0"
+                        className="w-full px-4 py-2 bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1">
+                        Silver Card Price ($)
+                    </label>
+                    <input
+                        type="number"
+                        value={formData.silver}
+                        onChange={(e) => setFormData(prev => ({ ...prev, silver: parseInt(e.target.value) || 0 }))}
+                        min="0"
+                        className="w-full px-4 py-2 bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1">
+                        Gold Card Price ($)
+                    </label>
+                    <input
+                        type="number"
+                        value={formData.gold}
+                        onChange={(e) => setFormData(prev => ({ ...prev, gold: parseInt(e.target.value) || 0 }))}
+                        min="0"
+                        className="w-full px-4 py-2 bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1">
+                        Platinum Card Price ($)
+                    </label>
+                    <input
+                        type="number"
+                        value={formData.platinum}
+                        onChange={(e) => setFormData(prev => ({ ...prev, platinum: parseInt(e.target.value) || 0 }))}
+                        min="0"
+                        className="w-full px-4 py-2 bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1">
+                        Event Price ($)
+                    </label>
+                    <input
+                        type="number"
+                        value={formData.event}
+                        onChange={(e) => setFormData(prev => ({ ...prev, event: parseInt(e.target.value) || 0 }))}
+                        min="0"
+                        className="w-full px-4 py-2 bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    />
                 </div>
             </div>
 

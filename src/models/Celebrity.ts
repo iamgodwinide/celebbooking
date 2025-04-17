@@ -37,23 +37,23 @@ export const CelebritySchema: Schema = new Schema({
     type: Boolean,
     default: false
   },
-  standardCardPrice: {
+  bronze: {
     type: Number,
     default: 99
   },
-  silverCardPrice: {
+  silver: {
     type: Number,
     default: 199
   },
-  goldCardPrice: {
+  gold: {
     type: Number,
     default: 499
   },
-  platinumCardPrice: {
+  platinum: {
     type: Number,
     default: 999
   },
-  eventBasedCard: {
+  event: {
     type: Number,
     default: 299
   }
